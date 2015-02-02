@@ -6,6 +6,7 @@ import (
 	"flag"
 	"flow"
 	"fmt"
+	ss "github.com/shadowsocks/shadowsocks-go/shadowsocks"
 	"html/template"
 	"io"
 	"log"
@@ -14,7 +15,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
-	ss "shadowsocks-go"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -381,32 +382,50 @@ var configFile string
 var config *ss.Config
 var flowData *flow.Info
 
-func status(w http.ResponseWriter, r *http.Request) {
-	type result struct {
-		Id         string
-		P          string
-		Use        string
-		UpdateTime string
-	}
+type result struct {
+	Id         string
+	P          string
+	Use        string
+	UpdateTime string
+}
 
-	type results struct {
-		Result []result
-	}
+type results struct {
+	Result []result
+}
+
+type ById []result
+
+func (s ById) Len() int {
+	return len(s)
+}
+
+func (s ById) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s ById) Less(i, j int) bool {
+	return s[i].Id < s[j].Id
+}
+
+func status(w http.ResponseWriter, r *http.Request) {
 
 	re := result{}
 	res := []result{}
 	for port, _ := range flowData.Usage {
 		usedUint, _ := strconv.ParseUint(flowData.Usage[port][0], 10, 64)
+		if config.PortPasswordLimit[port] == nil {
+			continue
+		}
 		limitUint, _ := strconv.ParseUint(config.PortPasswordLimit[port][1], 10, 64)
 		usedFloat := float64(usedUint) / 1073741824 //1024^3
 		usedStr := fmt.Sprintf("%.2f", usedFloat)
 		p := usedUint * 100 / limitUint
-
 		re = result{Id: port, P: strconv.Itoa(int(p)), Use: usedStr, UpdateTime: flowData.Usage[port][1]}
 		res = append(res, re)
 	}
-
-	fmt.Println()
+	//fmt.Println("before", res)
+	sort.Sort(ById(res))
+	//fmt.Println("after", res)
 
 	t, _ := template.ParseFiles("status.html")
 

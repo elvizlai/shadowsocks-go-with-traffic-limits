@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Go!</title>
     <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://cdn.bootcss.com/semantic-ui/1.7.3/semantic.min.css">
     <!--[if lt IE 9]>
     <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
@@ -17,9 +18,7 @@
     </h2>
     <div class="list-group col-lg-7">
         {{range .Result}}
-        <div><b style="float:left;padding-right:2px">{{.Id}}</b>
-            <input type="hidden" value="{{.UpdateTime}}">
-
+        <div class="content popup" data-content="UpdateTime: {{.UpdateTime}}"><b style="float:left;padding-right:4px;min-width:40px;">{{.Id}}</b>
             <div class="progress">
                 <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: {{.P}}%">
                 </div>
@@ -30,6 +29,14 @@
     </div>
 </div>
 <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/semantic-ui/1.7.3/semantic.min.js"></script>
 <script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(
+            function() {
+                $('.content.popup').popup();
+            }
+    )
+</script>
 </body>
 </html>
