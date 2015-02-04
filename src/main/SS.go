@@ -501,7 +501,9 @@ func main() {
 	}
 
 	//url
-	http.HandleFunc("/", status)            //设置访问的路由
+	http.HandleFunc("/", status) //设置访问的路由
+	http.Handle("/css/", http.FileServer(http.Dir("static")))
+	http.Handle("/js/", http.FileServer(http.Dir("static")))
 	err = http.ListenAndServe(":9000", nil) //设置监听的端口
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
